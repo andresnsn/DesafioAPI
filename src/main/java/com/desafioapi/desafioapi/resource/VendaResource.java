@@ -5,15 +5,20 @@ import com.desafioapi.desafioapi.model.Produto;
 import com.desafioapi.desafioapi.model.Venda;
 import com.desafioapi.desafioapi.repository.FornecedorRepository;
 import com.desafioapi.desafioapi.repository.VendaRepository;
+import com.desafioapi.desafioapi.service.VendaService;
+import com.desafioapi.desafioapi.service.exception.ProductInsertionException;
 import io.swagger.annotations.Api;
+import org.mapstruct.util.Experimental;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Api(tags = "Vendas")
@@ -27,6 +32,12 @@ public class VendaResource {
     @Autowired
     private FornecedorRepository fornecedorRepository;
 
+    @Autowired
+    private VendaService vendaService;
+
+    @Autowired
+    MessageSource messageSource;
+
     @GetMapping
     public List<Venda> listarVendas() { return vendasRepository.findAll(); }
 
@@ -38,25 +49,7 @@ public class VendaResource {
 
     @PostMapping
     public ResponseEntity<Venda> novaVenda(@Valid @RequestBody Venda venda) {
-        Venda vendaSalva = vendasRepository.save(venda);
-        List<String> checkList = new ArrayList<>();
-        for(Produto produto : vendaSalva.getProdutos()){
-            int idProduto = produto.getId().intValue();
-            Fornecedor fornecedor = fornecedorRepository.findById(vendaSalva.getFornecedor().getId()).orElse(null);
-            for(Produto produtos : fornecedor.getProdutos()){
-                if(idProduto != produtos.getId().intValue()){
-                    System.out.println("Produto não bate!");
-                } else {
-                    System.out.println("Produto OK!");
-                    checkList.add("OK");
-                }
-            }
-        }
-        if(checkList.size() != vendaSalva.getProdutos().size()){
-            System.out.println("Há algo errado com os produtos");
-        } else {
-            System.out.println("Todos os produtos batem!");
-        }
+        Venda vendaSalva = vendaService.salvar(venda);
         return ResponseEntity.status(HttpStatus.CREATED).body(vendaSalva);
     }
 
@@ -73,12 +66,18 @@ public class VendaResource {
 
     }
 
+    @ExceptionHandler({ProductInsertionException.class})
+    public ResponseEntity<Object> handleProductInsertException(ProductInsertionException ex) {
+        String userMessage = messageSource.getMessage("product.insert-condition", null, LocaleContextHolder.getLocale());
+        String developerMessage = ex.toString();
+        List<com.desafioapi.desafioapi.exceptionhandler.ExceptionHandler.Error> errors = Arrays.asList(new com.desafioapi.desafioapi.exceptionhandler.ExceptionHandler.Error(userMessage, developerMessage));
+        return ResponseEntity.badRequest().body(errors);
+        }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deletarVenda(@PathVariable Long id) {
         vendasRepository.deleteById(id);
     }
-
-
 
 }
