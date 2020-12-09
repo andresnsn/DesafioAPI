@@ -1,14 +1,13 @@
 package com.desafioapi.desafioapi.resource;
 
-import com.desafioapi.desafioapi.model.Fornecedor;
-import com.desafioapi.desafioapi.model.Produto;
+
 import com.desafioapi.desafioapi.model.Venda;
 import com.desafioapi.desafioapi.repository.FornecedorRepository;
 import com.desafioapi.desafioapi.repository.VendaRepository;
 import com.desafioapi.desafioapi.service.VendaService;
 import com.desafioapi.desafioapi.service.exception.ProductInsertionException;
 import io.swagger.annotations.Api;
-import org.mapstruct.util.Experimental;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -17,9 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,15 +39,18 @@ public class VendaResource {
     MessageSource messageSource;
 
     @GetMapping
+    @ApiOperation("Retornar a lista de vendas")
     public List<Venda> listarVendas() { return vendasRepository.findAll(); }
 
     @GetMapping("/{id}")
+    @ApiOperation("Retornar a venda pelo ID")
     public ResponseEntity<Venda> buscarVendaPorId (@PathVariable Long id) {
         Venda vendaSalva = vendasRepository.findById(id).orElse(null);
         return vendaSalva != null ? ResponseEntity.ok(vendaSalva) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
+    @ApiOperation("Inserir uma nova venda")
     public ResponseEntity<Venda> novaVenda(@Valid @RequestBody Venda venda) {
         Venda vendaSalva = vendaService.salvar(venda);
         vendaService.totalCompra(vendaSalva);
@@ -59,6 +58,7 @@ public class VendaResource {
     }
 
     @PutMapping("/{id}")
+    @ApiOperation("Atualizar os dados de uma venda")
     public ResponseEntity<Venda> atualizarVenda(@PathVariable Long id, @Valid @RequestBody Venda venda) {
         Venda vendaSalva = vendasRepository.findById(id).orElse(null);
         if(vendaSalva != null) {
@@ -81,6 +81,7 @@ public class VendaResource {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation("Deletar uma venda pelo ID")
     public void deletarVenda(@PathVariable Long id) {
         vendasRepository.deleteById(id);
     }
