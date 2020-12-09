@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.List;
 @RestController
 @RequestMapping("api/vendas")
 public class VendaResource {
+
+
 
     @Autowired
     private VendaRepository vendasRepository;
@@ -50,6 +54,7 @@ public class VendaResource {
     @PostMapping
     public ResponseEntity<Venda> novaVenda(@Valid @RequestBody Venda venda) {
         Venda vendaSalva = vendaService.salvar(venda);
+        vendaService.totalCompra(vendaSalva);
         return ResponseEntity.status(HttpStatus.CREATED).body(vendaSalva);
     }
 
