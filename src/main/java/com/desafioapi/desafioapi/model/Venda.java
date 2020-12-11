@@ -34,7 +34,6 @@ public class Venda {
     @JoinTable(name = "venda_produtos", joinColumns = @JoinColumn(name = "venda_id"), inverseJoinColumns = @JoinColumn(name = "produto_id"))
     private List<Produto> produtos;
 
-    @NotNull
     private BigDecimal total_compra;
 
     @NotNull

@@ -4,7 +4,7 @@ CREATE TABLE VENDA (
     codigo_cliente BIGINT(20) NOT NULL,
     FOREIGN KEY (codigo_fornecedor) REFERENCES fornecedor(id),
     FOREIGN KEY (codigo_cliente) REFERENCES cliente(id),
-    total_compra DECIMAL(10, 2) NOT NULL,
+    total_compra DECIMAL(10, 2),
     data_compra DATE NOT NULL
 );
 
